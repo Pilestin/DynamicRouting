@@ -100,29 +100,113 @@ def divide_route(route: list[Target], n: int = 10) -> list[Target]:
 
     return new_route, unserved_customers
 
-def dynamic_routing(route: list[Target], n: int = 10) -> list[Target]:
+def calculate_distance(route: list[Target]) -> float:
+    """ 
+    Rota üzerindeki toplam mesafeyi hesaplar.
+    args:
+        route: list[Target] -> Rota listesi
+    return:
+        total_distance: float -> Rota üzerindeki toplam mesafe
+    """
+    total_distance = 0
+    for i in range(len(route) - 1):
+        total_distance += route[i].distance_to(route[i+1])
+    return total_distance
+
+def calculate_cost(route: list[Target]) -> float:
+    """ 
+    Rota üzerindeki toplam maliyeti hesaplar.
+    args:
+        route: list[Target] -> Rota listesi
+    return:
+        total_cost: float -> Rota üzerindeki toplam maliyet
+    """
+    total_cost = 0
+    for i in range(len(route) - 1):
+        total_cost += route[i].cost_to(route[i+1])
+    return total_cost
+
+def acceptance_criteria(cost: int, new_cost: int, temperature) -> bool:
+    return random.random() < np.exp((cost - new_cost) / temperature)
+
+def neighborhood_search(route: list[Target]) -> list[Target]:
+    idx1, idx2 = random.sample(range(1, len(route) - 1), 2)
+    route[idx1], route[idx2] = route[idx2], route[idx1]
+    return route
+
+def dynamic_routing(route: list[Target], n: int = 10, unserved_customers : list = []) -> list[Target]:
     """ 
     Bu fonksiyon ile iterasyonlar yaparak rota üzerinde değişiklikler yapılır.
-    %50 ihtimal ile yeni bir rota oluşturulurken %50 ihtimal ile rota 
+    %50 ihtimal ile yeni bir rota oluşturulurken %50 ihtimal ile rota dinamik olarak yapılandırılacaktır.
+    
+    Problem : Şu an yeni bir unserved talep geldiğinde rotanın distance'ı değişeceği için kabul kriterinin tekrar ele alınması gerekmektedir. 
+    
+    Bunun için yeni müşteri eklendiğinde cost yeniden hesaplanıp orjinal cost bu yapılabilir.  
     """
-    pass 
+    max_iter = 100
+    temperature = 1000
+    cooling_rate = 0.95
+    
+    # rota kopyalanır ve cost'u alınır.
+    current_route = route[:]
+    iteration_route = route[:]
+    # best_route = route[:]
+    
+    current_cost = calculate_distance(current_route)
 
+    for i in range(max_iter):
+        print("[{i}] current route: ", current_route, " cost: ", current_cost)
+        if random.random() > 0.7:
+            # rotaya yeni bir customer noktası eklenir.
+            random_unserviced_customer = random.choice(unserved_customers)
+            # yeni customer noktası rota üzerine sondan eklenir.
+            current_route.insert(-1, random_unserviced_customer) # ! Deponun sağına koymamalı dikkat et test edilmedi 
+            current_cost = calculate_distance(current_route) 
+            print("dynamic customer adding : ", random_unserviced_customer)
+            
+        else:
+            # Rota üzerindeki customer noktaları arasında iki tane rastgele customer seçilir.
+            # yeni rota amaç fonksiyonu bakımından incelenir. 
+            iteration_route = neighborhood_search(iteration_route)
+            iteration_cost = calculate_distance(iteration_route)
+
+            # greedy acceptance / açgözlü kabul
+            if iteration_cost < current_cost:
+                print("Accept new neighbor solution") 
+                current_route = iteration_route[:]
+                current_cost = iteration_cost
+
+            # simulated annealing acceptance
+            # if new_cost < cost or acceptance_criteria(cost, new_cost, temperature):
+            #     route = new_route[:]
+        _cost = calculate_distance(current_route)
+        print("[{i}] current route: ", current_route, " cost: ", _cost)
+
+        input("devam etmek için bir tuşa basınız")
+        
+    return current_route
+    
 def main():
-    
+    # verinin/problemin 3 farklı bileşen ile alınması 
     depot, customers, initial_route = get_data()
-    print_route(depot)
-    print_route(customers)
-    print_route(initial_route)
-    
+
+    print("Customers : ",customers)    
     unserved_customers = None
     route = None
     
     route, unserved_customers = divide_route(initial_route[:])
+    print("----------------------------------------------------------------")
     print("Initial Route: ", route)
     print("Unserved Customers: ", unserved_customers)
-    print("New Route: ", route)
+    print("----------------------------------------------------------------")
+    
+    input("devam etmek için bir tuşa basınız")
+    
+    result = dynamic_routing(route[:], 10, unserved_customers=unserved_customers)
+    print(result)
     
 
 
 if __name__ == "__main__":
     main()
+    
