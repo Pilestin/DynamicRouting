@@ -5,7 +5,7 @@ from Objects.Customer import Customer
 from Objects.Target import Target
 import random
 
-def print_route(route: list[Target]) -> None:
+def print_route(route: list[Target], now: int) -> None:
     """ 
     rota yazdırmak için kullanılan fonksiyon 
     
@@ -17,9 +17,19 @@ def print_route(route: list[Target]) -> None:
     """
     print("Route: ", end=" ")
     try:
-        for target in route:
-            print(target, end=", ")
-        
+        print("->", end=" ")
+        for index, node in enumerate(route):
+            if index == now:
+                print("|", end=" ")
+                print(node, "|",  end=" === ")
+            else:
+                
+                if index == len(route) - 1:
+                    print(node, end="")
+                else: 
+                    print(node, end=" === ")
+        print()            
+
     except TypeError:
         print(route, end=", ")
     finally:
@@ -126,7 +136,7 @@ def calculate_cost(route: list[Target]) -> float:
         total_cost += route[i].cost_to(route[i+1])
     return total_cost
 
-def acceptance_criteria(cost: int, new_cost: int, temperature) -> bool:
+def acceptance_criteria(cost: int, new_cost: int, temperature: int) -> bool:
     return random.random() < np.exp((cost - new_cost) / temperature)
 
 def neighborhood_search(route: list[Target]) -> list[Target]:
@@ -134,15 +144,18 @@ def neighborhood_search(route: list[Target]) -> list[Target]:
     route[idx1], route[idx2] = route[idx2], route[idx1]
     return route
 
-def dynamic_routing(route: list[Target], n: int = 10, unserved_customers : list = []) -> list[Target]:
-    """ 
-    Bu fonksiyon ile iterasyonlar yaparak rota üzerinde değişiklikler yapılır.
-    %50 ihtimal ile yeni bir rota oluşturulurken %50 ihtimal ile rota dinamik olarak yapılandırılacaktır.
-    
-    Problem : Şu an yeni bir unserved talep geldiğinde rotanın distance'ı değişeceği için kabul kriterinin tekrar ele alınması gerekmektedir. 
-    
-    Bunun için yeni müşteri eklendiğinde cost yeniden hesaplanıp orjinal cost bu yapılabilir.  
+def static_routing(route: list[Target],  n: int = 10, unserved_customers : list = [] ) -> list[Target]:
     """
+    Rotalama yapmak için komşulukları keşfeder ve eğer iyi bir distance elde edildiyse rotayı tutar.
+
+    Args:
+        route (list[Target]): _description_
+
+    Returns:
+        list[Target]: _description_
+    """
+    
+    
     max_iter = 100
     temperature = 1000
     cooling_rate = 0.95
@@ -155,36 +168,72 @@ def dynamic_routing(route: list[Target], n: int = 10, unserved_customers : list 
     current_cost = calculate_distance(current_route)
 
     for i in range(max_iter):
-        print("[{i}] current route: ", current_route, " cost: ", current_cost)
-        if random.random() > 0.7:
-            # rotaya yeni bir customer noktası eklenir.
-            random_unserviced_customer = random.choice(unserved_customers)
-            # yeni customer noktası rota üzerine sondan eklenir.
-            current_route.insert(-1, random_unserviced_customer) # ! Deponun sağına koymamalı dikkat et test edilmedi 
-            current_cost = calculate_distance(current_route) 
-            print("dynamic customer adding : ", random_unserviced_customer)
-            
-        else:
-            # Rota üzerindeki customer noktaları arasında iki tane rastgele customer seçilir.
-            # yeni rota amaç fonksiyonu bakımından incelenir. 
-            iteration_route = neighborhood_search(iteration_route)
-            iteration_cost = calculate_distance(iteration_route)
+        
+        iteration_route = neighborhood_search(iteration_route)
+        new_cost = calculate_distance(iteration_route)
+        
+        if new_cost < current_cost:
+            current_route = iteration_route[:]
+            current_cost = new_cost
 
-            # greedy acceptance / açgözlü kabul
-            if iteration_cost < current_cost:
-                print("Accept new neighbor solution") 
-                current_route = iteration_route[:]
-                current_cost = iteration_cost
-
-            # simulated annealing acceptance
-            # if new_cost < cost or acceptance_criteria(cost, new_cost, temperature):
-            #     route = new_route[:]
-        _cost = calculate_distance(current_route)
-        print("[{i}] current route: ", current_route, " cost: ", _cost)
-
-        input("devam etmek için bir tuşa basınız")
+        if i%10 == 0:
+            print(f"Iteration: {i}\t Cost: {current_cost} \t Route: {current_route}")
+            input("devam . . . ")
         
     return current_route
+
+def dynamic_routing(route: list[Target], n: int = 10, unserved_customers : list = []) -> list[Target]:
+    """ 
+    Öncelikle statik rotalama yapan fonksiyon çağırılır ve kesin rota elde edilir.
+    Ardından bu rota üzerinde araç ilerlediği (for döngüsü) varsayılarak başlanır.
+    Her aşamada %x olasılık ile yeni talep gelip gelmeyeceği belirlenir ve talep geldiğinde en yakın noktaya ekleme yapılır. 
+    args:
+        route: list[Target] -> Rota listesi
+        n: int -> Alınacak customer sayısı
+
+    """
+    # route = static_routing(route[:], n, unserved_customers)
+    for index, node in enumerate(route):
+        print("----------------------------------------------------------------")
+        print_route(route, index)
+        print(f"Şu an : [{index}] {node}")
+        # bir olasılık değeri (0-1) 
+        if unserved_customers == []:
+            print("Tüm müşteriler servis edildi.")
+            continue
+
+        probablity = random.random()
+        if probablity > 0.5:
+            
+            # yeni bir rastgele müşteri gelir. birden fazla olması durumunda sample kullanılabilir.
+            new_customer = random.choice(unserved_customers)
+            # en yakın noktaya ekleme yapılır
+            input(f"{str(probablity)} olasılığı geldi. Yeni müşteri id: {new_customer} eklenecek.")
+           
+            cost_list = []
+            for next_node in route[index:-1]:
+                # burada rotaya ekleme yapıp min olan nokta da bulunabilir. lambda fonksiyonu ile.
+                # ben her henüz gidilmemiş nokta için inceleyip en yakın olanı buldum
+                distance_to_node = next_node.distance_to(new_customer)
+                cost_list.append((distance_to_node, next_node))
+            
+            # print(cost_list)
+            best_ = min(cost_list, key=lambda cost: cost[0])
+            best_node = best_[1]
+            print(f"Müşteri id {new_customer} için rotadaki en yakın yer ve uzaklık : ", best_)
+            input(f"Müşteri id {new_customer} rotaya dahil ediliyor . . . ")
+            where = route.index(best_node)
+            route.insert(where+1, new_customer)
+            unserved_customers.remove(new_customer)
+        else : 
+            # print("No new customer")
+            input(f"{str(probablity)} olasılığı geldi. devam ediliyor.")
+            continue
+
+        
+    return route
+    
+    
     
 def main():
     # verinin/problemin 3 farklı bileşen ile alınması 
@@ -196,8 +245,8 @@ def main():
     
     route, unserved_customers = divide_route(initial_route[:])
     print("----------------------------------------------------------------")
-    print("Initial Route: ", route)
-    print("Unserved Customers: ", unserved_customers)
+    print("Initial Route      : \t", route , "\t cost: ", calculate_distance(route))
+    print("Unserved Customers : \t", unserved_customers)
     print("----------------------------------------------------------------")
     
     input("devam etmek için bir tuşa basınız")

@@ -39,7 +39,6 @@ Unserved Customers:  [58/1, 153, 51, 37B, 49, 8, 44, 116, 31]
 
 
 
-
 SUMO 
 
 [Dinamik Rotalama Nedir ? ](https://www.notion.so/Dinamik-Rotalama-Nedir-c9fd7954eb104d2db8c47c59c08cc485?pvs=21)
