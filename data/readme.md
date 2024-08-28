@@ -1,0 +1,1 @@
+### Buraya Data yapısı gelecek Çünkü C20.xml dosyası private. Buna benzer bir yapı şablonu verilebileceği yazılmalı

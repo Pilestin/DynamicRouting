@@ -1,5 +1,6 @@
 import traci
 import xml.etree.ElementTree as ET
+from main import dynamic_routing
 
 def get_stop_edges(cs_file, stop_ids):
     # Load and parse the XML file
@@ -9,7 +10,7 @@ def get_stop_edges(cs_file, stop_ids):
     stop_edges = {}
     for stop_id in stop_ids:
         # Look for ech containerStop
-        for container_stop in root.findall("containerStop" or "chargingStation"):
+        for container_stop in root.findall("containerStop"):
             if container_stop.get('id') == stop_id:
                 # LGet lane and determine the edge
                 lane_id = container_stop.get('lane')
@@ -26,13 +27,12 @@ def get_stop_positions(cs_file, stop_ids):
     stop_positions = {}
     for stop_id in stop_ids:
         # Look for each containerStop
-        for container_stop in root.findall("containerStop" or "chargingStation"):
+        for container_stop in root.findall("containerStop"):
             if container_stop.get('id') == stop_id:
                 # Get end position
                 lane_id = container_stop.get('lane')
-                end_pos = (float(container_stop.get('endPos')) + float(container_stop.get('startPos'))) / 2
-                edge_id = lane_id.split('_')[0]  # Delete the lane ID from the edge ID
-                stop_positions[stop_id] = (edge_id, end_pos)
+                end_pos = float(container_stop.get('endPos'))
+                stop_positions[stop_id] = (lane_id, end_pos)
                 break
     return stop_positions
 
@@ -59,19 +59,11 @@ def create_full_route(stop_positions):
             full_route.extend(filtered_segment_route)
     return full_route
 
-def visualize_on_sumo(route : list):
+def start_visualization(route: list[str], ) -> None:
     
-    stop_ids = []  # Points to be visited
-    for index, item in enumerate(route):
-        if index == 0:
-            continue
-        stop_ids.append(str(item.id))
-    
-    print("Route : ", route)
-    print("route[0]", route[0])
-    print("route[0]", type(route[0]))
-    # File paths and stop IDs
-    cs_file = "RouteVisualization/cs.add.xml"
+    cs_file = "cs.add.xml"
+    # stop_ids = ["80", "12", "43A", "32"]  # Points to be visited
+    stop_ids = route[:]
     stop_duration = 20  # Waiting time at each stop (seconds)
 
     # Find the edges of the stop points and their positions
@@ -79,7 +71,7 @@ def visualize_on_sumo(route : list):
     stop_edges = get_stop_edges(cs_file, stop_ids)
 
     # Start SUMO-GUI
-    traci.start(["sumo-gui", "-c", "RouteVisualization/dennn.sumocfg.xml"])
+    traci.start(["sumo-gui", "-c", "dennn.sumocfg.xml"])
 
     # Calculate the routes and create the full route with edges
     full_route_edges = create_full_route(stop_positions)
@@ -94,19 +86,21 @@ def visualize_on_sumo(route : list):
     # Set the stop points for the vehicle
     for stop_id, (lane_id, end_pos) in stop_positions.items():
         lane_id = stop_edges[stop_id]
-        print(lane_id)
-        print(end_pos)
-        print(stop_duration)
         traci.vehicle.setStop("ev0", lane_id, pos=end_pos, duration=stop_duration)
-        print(f"{lane_id}lane_id")
     
-    # Run SUMO for 1000 steps
     for step in range(1000):
+        # Dinamik rotalama kontrolü
+        if step % 50 == 0:  # Belirli adımlarda yeni talep kontrolü yapılabilir
+            updated_route = dynamic_routing(route)
+            # Yeni rotayı güncellemek için aracın rotası silinir ve güncellenir
+            traci.vehicle.remove("ev0")
+            new_stop_pos = get_stop_positions(cs_file, updated_route)
+            new_full_route = create_full_route(new_stop_pos)
+            traci.route.add("delivery_route", new_full_route)
+            traci.vehicle.add("ev0", routeID="delivery_route", typeID="evehicle")
+
         traci.simulationStep()
-    
-    
+        
     # Close the simulation
     traci.close()
 
-# if __name__ == "__main__":
-#     main()

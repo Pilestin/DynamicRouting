@@ -5,7 +5,7 @@
 
 <routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
     <!-- VTypes -->
-    <vType id="evehicle" length="8.00" minGap="2.50" maxSpeed="100.00" vClass="evehicle" emissionClass="Zero/default" accel="1.0" decel="1.0" sigma="0.0">
+    <vType id="evehicle" length="2.50" minGap="2.50" maxSpeed="100.00" vClass="evehicle" emissionClass="Zero/default" accel="1.0" decel="1.0" sigma="0.0">
         <param key="actualBatteryCapacity" value="50"/>
         <param key="airDragCoefficient" value="0.6"/>
         <param key="battery.actualCapacity" value="50000000"/>
