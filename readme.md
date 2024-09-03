@@ -7,9 +7,6 @@ Bu proje Eskişehir Osmangazi Üniversitesi Akıllı Sistemler Uygulama ve Araş
 
 Çalışma içerisinde Osmangazi Üniversitesi Kampüsü haritası kullanılmıştır. Bu harita üzerinde rastgele seçilen müşteri noktaları arasında öncelikle statik rota oluşturulmuştur. Ardından rota güzergahı takip edilirken her adımda %50 olasılık ile yeni müşteri talepleri alınmıştır. Eğer talep alınmışsa servis edilmemiş rastgele bir müşteri rota güzergahına eklenmiştir. Bu işlem rota güzergahı tamamlanana kadar devam etmiştir. Yeni müşteri talebi her zaman rotanın ilerisine (henüz gidilmemiş) eklenmiştir. Böylelikle dinamik rotalama yapılmıştır. 
 
-
-- table of contrubutors
-
 | Ekip | Rolü |
 | --- | --- | 
 | [Yasin Ünal](https://github.com/Pilestin/)  | Rotalama Algoritması, Veri ortamının hazırlanması ve Dökümantasyon |
