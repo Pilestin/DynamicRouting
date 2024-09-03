@@ -3,20 +3,40 @@
 Created: August 25, 2024 7:32 PM
 Status: Done
 
-Bu proje Eskişehie Osmangazi Üniversitesi Akıllı Sistemler Uygulama ve Araştırma Merkezi (CISAR) yaz çalıştayı kapsamında yapılmıştır. Elektrikli araçların rotalamasında kullanılan yöntemlerden Dinamik Rotalama çalışılmıştır.
+Bu proje Eskişehir Osmangazi Üniversitesi Akıllı Sistemler Uygulama ve Araştırma Merkezi (CISAR) yaz çalıştayı kapsamında yapılmıştır. Elektrikli araçların rotalamasında kullanılan yöntemlerden Dinamik Rotalama çalışılmıştır.
 
 Çalışma içerisinde Osmangazi Üniversitesi Kampüsü haritası kullanılmıştır. Bu harita üzerinde rastgele seçilen müşteri noktaları arasında öncelikle statik rota oluşturulmuştur. Ardından rota güzergahı takip edilirken her adımda %50 olasılık ile yeni müşteri talepleri alınmıştır. Eğer talep alınmışsa servis edilmemiş rastgele bir müşteri rota güzergahına eklenmiştir. Bu işlem rota güzergahı tamamlanana kadar devam etmiştir. Yeni müşteri talebi her zaman rotanın ilerisine (henüz gidilmemiş) eklenmiştir. Böylelikle dinamik rotalama yapılmıştır. 
 
 
+- table of contrubutors
+
+| Ekip | Rolü |
+| --- | --- | 
+| [Yasin Ünal](https://github.com/Pilestin/)  | Rotalama Algoritması, Veri ortamının hazırlanması ve Dökümantasyon |
+| [Ahmet Alperen Polat](https://github.com/aalperenpolat) | Rotaların Sumo ortamında gösterimi |
+
+
+
+## İçindekiler
+
+- [Dinamik Rotalama](#dinamik-rotalama)
+  - [İçindekiler](#i̇çindekiler)
+  - [Dökümantasyon](#dökümantasyon)
+    - [Dinamik Rotalama Nedir ? ](#dinamik-rotalama-nedir--)
+    - [Rapor ve kod detayları ](#rapor-ve-kod-detayları-)
+  - [Kısıtlar](#kısıtlar)
+  - [Ön Kabuller :](#ön-kabuller-)
+  - [Veri](#veri)
+    - [Müştelerin Temsili](#müştelerin-temsili)
+  - [Sonuçlar](#sonuçlar)
+    - [Gelecek Çalışmalar](#gelecek-çalışmalar)
+
+
 ## Dökümantasyon
 
-### [Dinamik Rotalama Nedir ? ](https://www.notion.so/Dinamik-Rotalama-Nedir-c9fd7954eb104d2db8c47c59c08cc485?pvs=21)
+### [Dinamik Rotalama Nedir ? ](https://dawn-squash-710.notion.site/Dinamik-Rotalama-Nedir-8a50a862114f4fffac4998e6cdd08c54?pvs=4)
 
-### [Dijkstra Matrix ve Python ile Gerçeklenmesi  ](https://www.notion.so/Dijkstra-Matrix-ve-Python-ile-Ger-eklenmesi-ae3e797c44f2404aad6b8a5c3e04fa89?pvs=21)
-
-### [Sunum ](https://www.notion.so/Sunum-d7d577418d084a77a5c06d352c445603?pvs=21)
-
-
+### [Rapor ve kod detayları ](https://dawn-squash-710.notion.site/al-tay-d5028b31d5e14140831e9cc111f1c399?pvs=4)
 
 
 ## Kısıtlar  
