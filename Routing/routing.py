@@ -50,7 +50,7 @@ def static_routing(route: list[Target],  n: int = 10, unserved_customers : list 
     
     current_cost = calculate_distance(current_route)
 
-    for i in range(max_iter):
+    for i in range(0,max_iter+1):
         
         iteration_route = neighborhood_search(iteration_route)
         new_cost = calculate_distance(iteration_route)
@@ -61,7 +61,7 @@ def static_routing(route: list[Target],  n: int = 10, unserved_customers : list 
 
         if i%10 == 0:
             print(f"Iteration: {i}\t Cost: {current_cost} \t Route: {current_route}")
-            #input("devam . . . ")
+            input("devam . . . ")
         
     return current_route
 

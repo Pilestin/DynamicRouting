@@ -27,13 +27,13 @@ def main():
     input("devam etmek için bir tuşa basınız")
     
     static_route = static_routing(route[:], 10, unserved_customers)
-    visualize_on_sumo(static_route)
+    # visualize_on_sumo(static_route)
     
     dynamic_route = dynamic_routing(static_route[:], 10, unserved_customers=unserved_customers)
-    visualize_on_sumo(dynamic_route)
+    # visualize_on_sumo(dynamic_route)
     
     print(dynamic_route)
-    
+    print()
 
 
 if __name__ == "__main__":

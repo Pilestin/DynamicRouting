@@ -67,9 +67,6 @@ def visualize_on_sumo(route : list):
             continue
         stop_ids.append(str(item.id))
     
-    print("Route : ", route)
-    print("route[0]", route[0])
-    print("route[0]", type(route[0]))
     # File paths and stop IDs
     cs_file = "RouteVisualization/cs.add.xml"
     stop_duration = 20  # Waiting time at each stop (seconds)
@@ -94,11 +91,7 @@ def visualize_on_sumo(route : list):
     # Set the stop points for the vehicle
     for stop_id, (lane_id, end_pos) in stop_positions.items():
         lane_id = stop_edges[stop_id]
-        print(lane_id)
-        print(end_pos)
-        print(stop_duration)
         traci.vehicle.setStop("ev0", lane_id, pos=end_pos, duration=stop_duration)
-        print(f"{lane_id}lane_id")
     
     # Run SUMO for 1000 steps
     for step in range(1000):

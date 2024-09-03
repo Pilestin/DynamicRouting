@@ -61,23 +61,23 @@ def create_full_route(stop_positions):
 
 def start_visualization(route: list[str], ) -> None:
     
-    cs_file = "cs.add.xml"
-    # stop_ids = ["80", "12", "43A", "32"]  # Points to be visited
-    stop_ids = route[:]
+    # File paths and stop IDs
+    cs_file = "RouteVisualization/cs.add.xml"
     stop_duration = 20  # Waiting time at each stop (seconds)
 
+
     # Find the edges of the stop points and their positions
-    stop_positions = get_stop_positions(cs_file, stop_ids)
-    stop_edges = get_stop_edges(cs_file, stop_ids)
+    stop_positions = get_stop_positions(cs_file, route)
+    stop_edges = get_stop_edges(cs_file, route)
 
     # Start SUMO-GUI
-    traci.start(["sumo-gui", "-c", "dennn.sumocfg.xml"])
+    traci.start(["sumo-gui", "-c", "RouteVisualization/dennn.sumocfg.xml"])
 
     # Calculate the routes and create the full route with edges
     full_route_edges = create_full_route(stop_positions)
     
     # Print the route
-    print("Full route edges:", full_route_edges)
+    # print("Full route edges:", full_route_edges)
 
     # Add the vehicle and the route to SUMO
     traci.route.add("delivery_route", full_route_edges)
@@ -87,20 +87,12 @@ def start_visualization(route: list[str], ) -> None:
     for stop_id, (lane_id, end_pos) in stop_positions.items():
         lane_id = stop_edges[stop_id]
         traci.vehicle.setStop("ev0", lane_id, pos=end_pos, duration=stop_duration)
-    
-    for step in range(1000):
-        # Dinamik rotalama kontrolü
-        if step % 50 == 0:  # Belirli adımlarda yeni talep kontrolü yapılabilir
-            updated_route = dynamic_routing(route)
-            # Yeni rotayı güncellemek için aracın rotası silinir ve güncellenir
-            traci.vehicle.remove("ev0")
-            new_stop_pos = get_stop_positions(cs_file, updated_route)
-            new_full_route = create_full_route(new_stop_pos)
-            traci.route.add("delivery_route", new_full_route)
-            traci.vehicle.add("ev0", routeID="delivery_route", typeID="evehicle")
 
+    
+    # Run SUMO for 1000 steps
+    for step in range(1000):
         traci.simulationStep()
-        
+    
+    
     # Close the simulation
     traci.close()
-
